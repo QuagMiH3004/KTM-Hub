@@ -1,4 +1,4 @@
--- KTM NDS Hub
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -70,7 +70,7 @@ local function ForcePart(v)
         local AlignPosition = Instance.new("AlignPosition", v)
         local Attachment2 = Instance.new("Attachment", v)
         Torque.Attachment0 = Attachment2
-        AlignPosition.MaxForce = 9999999999999999
+        AlignPosition.MaxForce = 99999999999999999
         AlignPosition.MaxVelocity = math.huge
         AlignPosition.Responsiveness = 200
         AlignPosition.Attachment0 = Attachment2
@@ -91,7 +91,7 @@ playSound("2865227271") -- initial sound
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KTM-GUI"
+ScreenGui.Name = "KTM-NDS GUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
@@ -109,7 +109,7 @@ UICorner.Parent = MainFrame
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1,0,0,40)
 Title.Position = UDim2.new(0,0,0,0)
-Title.Text = "KTM Tornado"
+Title.Text = "KTM-NDS Tornado v1"
 Title.TextColor3 = Color3.fromRGB(255,255,255)
 Title.BackgroundColor3 = Color3.fromRGB(0,153,76)
 Title.Font = Enum.Font.Fondamento
@@ -176,7 +176,7 @@ RadiusCorner.Parent = RadiusDisplay
 local Watermark = Instance.new("TextLabel")
 Watermark.Size = UDim2.new(1,0,0,20)
 Watermark.Position = UDim2.new(0,0,1,-20)
-Watermark.Text = "KTM-NDS  by HKatama299"
+Watermark.Text = "KTM-NDS v1 by HKatama299"
 Watermark.TextColor3 = Color3.fromRGB(255,255,255)
 Watermark.BackgroundTransparency = 1
 Watermark.Font = Enum.Font.Fondamento
@@ -303,12 +303,8 @@ local userId = Players:GetUserIdFromNameAsync("HKatama299")
 local thumbType = Enum.ThumbnailType.HeadShot
 local thumbSize = Enum.ThumbnailSize.Size420x420
 local content = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
-StarterGui:SetCore("SendNotification",{Title="KTM-NDS", Text="Try to be c00lkidd now!", Icon=content, Duration=5})
-StarterGui:SetCore("SendNotification",{Title="Nature Disaster Survival", Text="Welcome, c00lkidd member!", Icon=content, Duration=5})
-StarterGui:SetCore("SendNotification",{Title="Invite Link (Discord) ", Text="https://discord.gg/HcjMbhMZ", Icon=content, Duration=5})
-StarterGui:SetCore("SendNotification",{Title="Dev", Text="Edited by HKatama299", Icon=content, Duration=5})
+StarterGui:SetCore("SendNotification",{Title="c00lkidd", Text="You joined team c00lkidd", Icon=content, Duration=5})
 
--- Chat message
 local function SendChatMessage(msg)
     if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
         local textChannel = TextChatService.TextChannels.RBXGeneral
@@ -317,8 +313,4 @@ local function SendChatMessage(msg)
         game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg,"All")
     end
 end
-SendChatMessage("Team c00lkidd - join today!!")
-wait(5)
-SendChatMessage("Team c00lkidd - join today!!")
-wait(5)
-SendChatMessage("Team c00lkidd - join today!!")
+SendChatMessage("Team c00lkidd - join today ")
