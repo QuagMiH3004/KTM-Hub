@@ -145,4 +145,5 @@ uis.InputBegan:Connect(function(inp, gp)
 	end
 end)
 
-print("Press F to toggle fly (Speed: "..speed..")")
+--print("Press F to toggle fly (Speed: "..speed..")")
+
