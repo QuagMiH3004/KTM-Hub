@@ -105,7 +105,7 @@ local uis = game:GetService("UserInputService")
 local rs  = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 
-local speed    = 55         -- vận tốc bay
+local speed    = 65         -- vận tốc bay
 local flying   = false       -- trạng thái
 local bv, bg   -- BodyVelocity & BodyGyro
 local loopConn -- kết nối RenderStepped
@@ -236,3 +236,4 @@ local Button = MainTab:CreateButton({
    loadstring(game:HttpGet("https://raw.githubusercontent.com/QuagMiH3004/KTM-Hub/refs/heads/main/KTM-NDS.lua"))()
    end,
 })
+
