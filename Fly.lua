@@ -5,7 +5,7 @@ local uis = game:GetService("UserInputService")
 local rs  = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 
-local speed    = 80         -- vận tốc bay mặc định
+local speed    = 67         -- vận tốc bay mặc định
 local flying   = false       -- trạng thái
 local bv, bg   -- BodyVelocity & BodyGyro
 local loopConn -- kết nối RenderStepped
@@ -146,4 +146,5 @@ uis.InputBegan:Connect(function(inp, gp)
 end)
 
 --print("Press F to toggle fly (Speed: "..speed..")")
+
 
