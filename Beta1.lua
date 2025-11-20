@@ -20,6 +20,85 @@ local rotationSpeed = 0.5
 local attractionStrength = 1000
 local ringPartsEnabled = false -- Biến Tắt/Mở chính
 local parts = {} -- Bảng lưu trữ các vật thể bị ảnh hưởng
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+--Set checkpoint
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- =========================================================================
+-- HÀM ĐẶT CHECKPOINT
+-- =========================================================================
+-- Biến lưu trữ CFrame của Checkpoint
+local checkPointCFrame = nil 
+local checkPointPart = nil   -- Biến lưu trữ khối Part Checkpoint (nếu có)
+
+-- =========================================================================
+-- HÀM TẠO KHỐI CHECKPOINT
+-- =========================================================================
+local function createCheckpointPart(cframe)
+    -- Nếu đã có khối checkpoint cũ, xóa nó đi
+    if checkPointPart and checkPointPart.Parent then
+        checkPointPart:Destroy()
+    end
+
+    -- 1. Tạo Part mới (Chỉ hiển thị cục bộ)
+    local newPart = Instance.new("Part")
+    newPart.Size = Vector3.new(3, 3, 3) 
+    newPart.BrickColor = Color3.fromRGB(83, 255, 26) -- Màu xanh lá cây
+    newPart.Transparency = 0.5                      -- Hơi trong suốt
+    newPart.Anchored = true                         -- Không di chuyển
+    newPart.CanCollide = false                      -- Có thể đi xuyên qua
+    newPart.Name = "LocalCheckpoint1"
+
+    -- 2. Đặt vị t
+    newPart.CFrame = cframe
+    
+    -- 3. Gán vào Workspace
+    newPart.Parent = Workspace
+    
+    checkPointPart = newPart
+end
+
+-- =========================================================================
+-- HÀM ĐẶT CHECKPOINT
+-- =========================================================================
+function setCheckpoint()
+    local char = player.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    
+    if root then
+        -- Lấy CFrame (Vị trí và Hướng) của chân nhân vật
+        checkPointCFrame = root.CFrame
+        
+        -- Tạo khối cục bộ ngay tại vị trí Checkpoint (cao hơn một chút để không bị kẹt)
+        local checkpointPosition = checkPointCFrame * CFrame.new(0, 1.5 + 3/2, 0) -- Nâng lên 1.5 stud + nửa chiều cao Part
+        
+        createCheckpointPart(checkpointPosition)
+        
+        -- In thông báo thành công
+        print("Checkpoint done at : " .. tostring(checkPointCFrame.Position))
+    end
+end
+
+-- =========================================================================
+-- HÀM DỊCH CHUYỂN VỀ CHECKPOINT
+-- =========================================================================
+function teleportToCheckpoint()
+    if checkPointCFrame then
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        
+        if root then
+            -- Dịch chuyển HumanoidRootPart về CFrame đã lưu
+            root.CFrame = checkPointCFrame
+            print("Dịch chuyển thành công đến Checkpoint.")
+        end
+    else
+        print("Lỗi: Chưa có Checkpoint nào được đặt!")
+    end
+end
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+--NDS
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- THIẾT LẬP CÁC PHẦN TỬ HỖ TRỢ TRONG WORKSPACE
 local Folder = Instance.new("Folder", Workspace)
@@ -189,7 +268,10 @@ local Speed_Toggle = MainTab:CreateToggle({
    Flag = "ToggleWalkSpeed", -- Sửa flag
    Callback = function(Value)
         if (Value) then
-            player.Character.Humanoid.WalkSpeed = (myspeed)
+            while (Value) do
+                wait(1)
+                player.Character.Humanoid.WalkSpeed = (myspeed)
+            end
         else
             game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
         end
@@ -198,8 +280,8 @@ local Speed_Toggle = MainTab:CreateToggle({
 
 local Jump_Slider = MainTab:CreateSlider({
    Name = "Slider JumpPower",
-   Range = {5, 100},
-   Increment = 1,
+   Range = {5, 200},
+   Increment = 5,
    Suffix = "JumpPower",
    CurrentValue = 16,
    Flag = "SliderJumpPower", -- Sửa flag
@@ -243,6 +325,19 @@ if _G.infinJumpStarted == nil then
 end
    end,
 })
+local Noclip_Toggle = MainTab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "Noclip-Toggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Callback = function(Value)
+        if (Value) then
+            print(Value)
+            else
+            print(Value)
+        end
+   end,
+})
+
 local Section = MainTab:CreateSection("Fly")
 local Fly_Slider = MainTab:CreateSlider({
    Name = "FlySpeed",
@@ -390,5 +485,29 @@ local AttractionSlider = NDSTab:CreateSlider({ -- SỬA: Dùng NDSTab thay vì T
    Flag = "AttractionSlider", -- Sửa flag
    Callback = function(Value)
         attractionStrength = (Value)
+   end,
+})
+local Fling_Section = NDSTab:CreateSection("Fling")
+local FlingButton = NDSTab:CreateButton({
+   Name = "Fling 1",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ThawaBR/Touch-Fling/refs/heads/main/source"))()
+   end,
+})
+
+local TP_Tab = Window:CreateTab("TP", nil) -- Title, Image
+local C1_Section = TP_Tab:CreateSection("Checkpoint 1")
+
+local SetCheckpointButton1 = TP_Tab:CreateButton({
+   Name = "Set checkpoint",
+   Callback = function()
+        setCheckpoint() -- Gọi hàm đặt Checkpoint
+   end,
+})
+
+local TeleportButton = TP_Tab:CreateButton({
+   Name = "Teleport to checkpoint 1",
+   Callback = function()
+        teleportToCheckpoint()
    end,
 })
