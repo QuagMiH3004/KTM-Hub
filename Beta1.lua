@@ -23,10 +23,6 @@ local parts = {} -- Bảng lưu trữ các vật thể bị ảnh hưởng
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 --Set checkpoint
 -------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- =========================================================================
--- HÀM ĐẶT CHECKPOINT
--- =========================================================================
 -- Biến lưu trữ CFrame của Checkpoint
 local checkPointCFrame = nil 
 local checkPointPart = nil   -- Biến lưu trữ khối Part Checkpoint (nếu có)
@@ -43,13 +39,13 @@ local function createCheckpointPart(cframe)
     -- 1. Tạo Part mới (Chỉ hiển thị cục bộ)
     local newPart = Instance.new("Part")
     newPart.Size = Vector3.new(3, 3, 3) 
-    newPart.BrickColor = Color3.fromRGB(83, 255, 26) -- Màu xanh lá cây
+    newPart.BrickColor = BrickColor.new("Lime green") -- Màu xanh lá cây
     newPart.Transparency = 0.5                      -- Hơi trong suốt
     newPart.Anchored = true                         -- Không di chuyển
     newPart.CanCollide = false                      -- Có thể đi xuyên qua
-    newPart.Name = "LocalCheckpoint1"
+    newPart.Name = "LocalCheckpoint"
 
-    -- 2. Đặt vị t
+    -- 2. Đặt vị trí
     newPart.CFrame = cframe
     
     -- 3. Gán vào Workspace
@@ -75,7 +71,7 @@ function setCheckpoint()
         createCheckpointPart(checkpointPosition)
         
         -- In thông báo thành công
-        print("Checkpoint done at : " .. tostring(checkPointCFrame.Position))
+        print("Checkpoint đã được đặt tại: " .. tostring(checkPointCFrame.Position))
     end
 end
 
@@ -212,7 +208,7 @@ end)
 local Window = Rayfield:CreateWindow({
    Name = "KTM Hub",
    Icon = 0, 
-   LoadingTitle = "v1.0.3 (Beta)",
+   LoadingTitle = "v1.1.4 (Beta)",
    LoadingSubtitle = "by HKatama299",
    ShowText = "-KTM Hub-", 
    Theme = "Amethyst", 
