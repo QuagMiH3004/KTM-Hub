@@ -269,7 +269,8 @@ RunService.Heartbeat:Connect(function()
                     center.X + math.cos(newAngle) * math.min(radius, dist),                -- X: Xoay và giới hạn bán kính
                     center.Y + (height * math.abs(math.sin((pos.Y - center.Y) / height))), -- Y: Đẩy lên/xuống theo hình xoắn ốc
                     center.Z +
-                    math.sin(newAngle) * math.min(radius, dist)                            -- Z: Xoay và giới hạn bán kính
+                    math.sin(newAngle) *
+                    math.min(radius, dist)                                                 -- Z: Xoay và giới hạn bán kính
                 )
 
                 -- Áp dụng lực Velocity để kéo Part về vị trí mục tiêu
@@ -339,15 +340,31 @@ local Speed_Slider  = MainTab:CreateSlider({
 local Speed_Toggle  = MainTab:CreateToggle({
     Name = "Walk Speed",
     CurrentValue = false,
-    Flag = "ToggleWalkSpeed", -- Sửa flag
+    Flag = "ToggleWalkSpeed",
     Callback = function(Value)
-        if (Value) then
-            while (Value) do
-                wait(1)
-                player.Character.Humanoid.WalkSpeed = (myspeed)
-            end
+        isWalkSpeedToggleActive = Value -- (1) Cập nhật cờ kiểm soát
+
+        if Value then
+            -- (2) KHỞI ĐỘNG LUỒNG MỚI CHO VÒNG LẶP
+            walkSpeedLoop = task.spawn(function()
+                while isWalkSpeedToggleActive do
+                    task.wait(1) -- Cập nhật mỗi 1 giây
+                    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+                    if humanoid then
+                        humanoid.WalkSpeed = myspeed
+                    end
+                end
+            end)
         else
-            game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+            -- (3) DỪNG LUỒNG VÀ ĐẶT LẠI GIÁ TRỊ
+            if walkSpeedLoop then
+                task.cancel(walkSpeedLoop) -- Ngừng luồng ngay lập tức
+                walkSpeedLoop = nil
+            end
+            local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = 16
+            end
         end
     end,
 })
@@ -546,7 +563,7 @@ local RotationSlider = NDSTab:CreateSlider({
         rotationSpeed = (Value)
     end,
 })
-local AttractionSlider = NDSTab:CreateSlider({ -- SỬA: Dùng NDSTab thay vì Tab
+local AttractionSlider = NDSTab:CreateSlider({
     Name = "Attraction Strength",
     Range = { 800, 3000 },
     Increment = 200,
