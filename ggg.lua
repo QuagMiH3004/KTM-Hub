@@ -19,78 +19,7 @@ local rotationSpeed      = 0.5
 local attractionStrength = 1000
 local ringPartsEnabled   = false -- Biến Tắt/Mở chính
 local parts              = {}    -- Bảng lưu trữ các vật thể bị ảnh hưởng
--- Noclip
--- ==================== KHAI BÁO BIẾN HỖ TRỢ CHO GHOST MODE ====================
 
--- Bảng lưu trữ các Part đang trong chế độ Ghost Mode để tránh xử lý trùng lặp
-local ghostParts         = {}
-local touchConnection    = nil   -- Biến lưu trữ kết nối sự kiện Touched
-local isGhostModeActive  = false -- Trạng thái Toggle chính
-
--- ==================== HÀM XỬ LÝ KHI CHẠM VÀO PART ====================
-local function onPartTouched(otherPart)
-    local character = player.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-
-    if root and isGhostModeActive and otherPart:IsA("BasePart") and not otherPart.Anchored and not ghostParts[otherPart] then [cite: 7]
-        -- Lọc để chỉ xử lý khi HumanoidRootPart chạm vào vật thể
-        if otherPart.Parent == root.Parent then return end -- Part thuộc về nhân vật thì bỏ qua
-
-        -- Lấy giá trị CanCollide ban đầu để phục hồi sau này
-        local originalCanCollide = otherPart.CanCollide 
-
-        -- Chỉ xử lý nếu vật thể ban đầu KHÔNG THỂ XUYÊN QUA (CanCollide = true) [cite: 8]
-        if originalCanCollide then
-            
-            -- Đánh dấu Part này đang được xử lý (và lưu trạng thái CanCollide gốc)
-            -- CHỈ LƯU TRẠNG THÁI GỐC LÀ originalCanCollide
-            ghostParts[otherPart] = originalCanCollide
-
-            print("Kích hoạt chế độ xuyên thấu cho Part: " .. otherPart.Name) [cite: 8]
-
-            -- TẮT VA CHẠM (Xuyên qua ngay lập tức) [cite: 8]
-            otherPart.CanCollide = false
-            
-            -- *** ĐÃ XÓA: task.wait(2) và logic phục hồi Va chạm tự động ***
-        end
-    end
-end
-function toggleGhostMode(shouldBeActive)
-    if shouldBeActive then
-        if not isGhostModeActive then
-            -- Bắt đầu lắng nghe sự kiện Touched của nhân vật [cite: 11]
-            local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-            if root then
-                -- Kết nối sự kiện Touched vào hàm xử lý [cite: 11]
-                touchConnection = root.Touched:Connect(onPartTouched)
-                isGhostModeActive = true [cite: 12]
-                print("Chế độ Ghost Mode ĐÃ BẬT. Bắt đầu lắng nghe va chạm.") [cite: 12]
-            end
-        end
-    else
-        -- ----------------------------------------------------
-        -- THÊM LOGIC PHỤC HỒI VA CHẠM HÀNG LOẠT
-        -- ----------------------------------------------------
-        -- Duyệt qua tất cả các Part đang trong chế độ Ghost Mode
-        for part, originalCanCollide in pairs(ghostParts) do
-            if part and part.Parent then -- Kiểm tra Part còn tồn tại không
-                -- Đặt lại CanCollide về giá trị gốc đã lưu
-                part.CanCollide = originalCanCollide
-                print("Va chạm đã được BẬT lại cho Part: " .. part.Name)
-            end
-        end
-        -- Xóa sạch bảng ghostParts sau khi phục hồi
-        ghostParts = {}
-        
-        -- Ngắt kết nối sự kiện Touched [cite: 12]
-        if touchConnection then
-            touchConnection:Disconnect() [cite: 13]
-            touchConnection = nil [cite: 13]
-            isGhostModeActive = false [cite: 13]
-            print("Chế độ Ghost Mode ĐÃ TẮT. Không còn xử lý va chạm.") [cite: 14]
-        end
-    end
-end
 --------------------------------------------------------
 --EZ
 --------------------------------------------------------
@@ -289,7 +218,7 @@ end)
 -- Start UI
 ----------------------------------------------------------------------
 
-local Window        = Rayfield:CreateWindow({
+local Window = Rayfield:CreateWindow({
     Name = "KTM Hub",
     Icon = 0,
     LoadingTitle = "v1.1.6 (Beta)",
@@ -419,14 +348,6 @@ local Button        = MainTab:CreateButton({
                 end
             end)
         end
-    end,
-})
-local Noclip_Toggle = MainTab:CreateToggle({
-    Name = "Noclip",
-    CurrentValue = false,
-    Flag = "Noclip-Toggle", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-        toggleGhostMode(Value)
     end,
 })
 
@@ -579,93 +500,5 @@ local AttractionSlider = NDSTab:CreateSlider({
         attractionStrength = (Value)
     end,
 })
-local Fling_Section = NDSTab:CreateSection("Fling")
-local FlingButton = NDSTab:CreateButton({
-    Name = "Fling 1",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/ThawaBR/Touch-Fling/refs/heads/main/source"))()
-    end,
-})
 
-local TP_Tab = Window:CreateTab("TP", nil) -- Title, Image
-local C1_Section = TP_Tab:CreateSection("Checkpoint 1")
-
-local SetCheckpointButton1 = TP_Tab:CreateButton({
-    Name = "Set checkpoint",
-    Callback = function()
-        setCheckpoint() -- Gọi hàm đặt Checkpoint
-    end,
-})
-
-local TeleportButton = TP_Tab:CreateButton({
-    Name = "Teleport to checkpoint 1",
-    Callback = function()
-        teleportToCheckpoint()
-    end,
-})
-local WW2_Section = TP_Tab:CreateSection("ww2 tanks sim")
--- ==================== KHỐI DỮ LIỆU VỊ TRÍ CỐ ĐỊNH ====================
-
--- Bảng lưu trữ tên và tọa độ của các điểm dịch chuyển
-local FixedTeleportLocations = {
-    -- Tên hiển thị = Vector3.new(X, Y, Z)
-    ["Spawn"] = Vector3.new(1039.132, 5, 878.529),
-    ["Normal Spawn"] = Vector3.new(-176.264, 10, -7.797),
-    ["USA"] = Vector3.new(787.818, 15, 327.274),
-    ["Plane"] = Vector3.new( -434.277, 5, -10.98),
-    ["Flamethrower"] = Vector3.new(100, 500, 20),
-    ["Panzerfaust"] = Vector3.new(-110.498, 5, -408.433),
-    ["Bomber"] = Vector3.new(2407.033, 5, -2154.998),
-}
--- MẢNG CHỈ CHỨA TÊN (KEY) DÙNG CHO OPTIONS CỦA DROPDOWN
-local TeleportOptions = {}
-for name, _ in pairs(FixedTeleportLocations) do
-    table.insert(TeleportOptions, name)
-end
-
--- =====================================================================
--- ==================== HÀM DỊCH CHUYỂN (ĐỘNG) ====================
-
--- Sử dụng LocalPlayer/player/character đã khai báo
-local function teleportToFixedLocation(targetPosition)
-    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local humanoidRootPart = char:WaitForChild("HumanoidRootPart")
-
-    -- Teleport nhân vật đến vị trí đã cho
-    humanoidRootPart.CFrame = CFrame.new(targetPosition)
-
-    print("Đã dịch chuyển đến vị trí cố định: " .. tostring(targetPosition))
-end
-
--- ==================== TẠO DROPDOWN CHO TELEPORT ====================
-
-
--- 1. DROP DOWN ĐỂ CHỌN VỊ TRÍ
-local LocationDropdown = TP_Tab:CreateDropdown({
-    Name = "Chọn Vị Trí Dịch Chuyển",
-    Options = TeleportOptions, -- Sử dụng mảng tên vị trí
-    CurrentOption = { TeleportOptions[1] or "None" },
-    MultipleOptions = false,
-    Flag = "TeleportLocationDropdown",
-    Callback = function(SelectedOptions)
-        -- Khi người dùng chọn, lưu tên vị trí đã chọn
-        -- (SelectedOptions là một bảng, nhưng vì MultipleOptions=false nên chỉ lấy phần tử đầu tiên)
-        local selectedName = SelectedOptions[1]
-        -- Không làm gì ở đây, chỉ lưu tên để nút Button sử dụng
-    end,
-})
-
--- 2. NÚT DỊCH CHUYỂN (Thực hiện hành động)
-local TeleportExecuteButton = TP_Tab:CreateButton({
-    Name = "TP to area",
-    Callback = function()
-        local selectedName = LocationDropdown:GetOptions()[1]     -- Lấy tên vị trí đang được chọn
-        local targetVector = FixedTeleportLocations[selectedName] -- Lấy Vector3 tương ứng
-
-        if targetVector then
-            teleportToFixedLocation(targetVector) -- Gọi hàm dịch chuyển
-        else
-            warn("Lỗi: Không tìm thấy tọa độ cho vị trí: " .. selectedName)
-        end
-    end,
 })
